@@ -15,38 +15,12 @@
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from datetime import timedelta
-from flask import Flask
-from flask_restful import Api
-from flask_jwt import JWT
+from app import app
+from db import db
 
-from security import authenticate, identity
-from resources.user import User
-from resources.item import Item, ItemList
-from resources.store import Store, StoreList
+db.init_app(app)
 
-app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///../database/data.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-app.secret_key = 'N8WP'
-api = Api(app)
-
-app.config['JWT_AUTH_URL_RULE'] = '/login'
-app.config['JWT_EXPIRATION_DELTA'] = timedelta(seconds=600)
-
-jwt = JWT(app, authenticate, identity)   # /auth
-
-api.add_resource(Store, '/store/<string:name>')
-api.add_resource(Item, '/item/<string:name>')
-api.add_resource(ItemList, '/items')
-api.add_resource(StoreList, '/stores')
-api.add_resource(User, '/register')
-
-if __name__ == '__main__':
-
-    from db import db   # Avoid circular dependencies
-
-    db.init_app(app)
-    app.run(port=5000, debug=True)
+@app.before_first_request
+def create_tables():
+    db.create_all()
