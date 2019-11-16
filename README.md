@@ -2,7 +2,8 @@
 
 ## Installation
 
-TBD
+This is built with Flask, Flask-RESTful, Flask-JWT, and Flask-SQLAlchemy.
+It is deployed on Heroku.
 
 ## Description
 
